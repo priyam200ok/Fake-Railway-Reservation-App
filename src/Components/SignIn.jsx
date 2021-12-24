@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   Avatar,
   Button,
@@ -18,7 +18,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { AuthContext } from "../Context/ContextStore";
 import { LOGGED_IN, LOGGED_USER } from "../Context/ContextReducer";
-// import { Formik, Form, Field } from "formik";
+import PlanJourney from "./PlanJourney";
 const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -49,6 +49,12 @@ export default function SignIn() {
   const history = useHistory();
   const classes = useStyles();
   const [data, setData] = useState();
+  const [test, setTest] = useState("");
+
+  // const testing = (i) => {
+  //   setTest(i);
+  //   console.log(test);
+  // };
   const {
     authState: { loggedUsers },
     authDispatch,
@@ -56,23 +62,34 @@ export default function SignIn() {
   const handleLogin = (values) => {
     axios
       .get(`http://localhost:3000/users?q=${values.email}&q=${values.password}`)
-      .then((response) => setData(response.data));
-    authDispatch({
-      type: LOGGED_USER,
-      loggedUsers: data,
-    });
-    loggedUsers?.length > 0
-      ? authDispatch({
-          type: LOGGED_IN,
+      .then((response) =>
+        response.data.map((data) => {
+          if (
+            data.email === values.email &&
+            data.password === values.password
+          ) {
+            authDispatch({
+              type: LOGGED_IN,
+            });
+            authDispatch({
+              type: LOGGED_USER,
+              loggedUsers: data,
+            });
+            if (data.role === "admin") {
+              history.push("/dashboard");
+            } else {
+              history.push("/planjourney");
+            }
+          } else {
+            history.push("/signin");
+          }
         })
-      : history.push("/signin");
-    loggedUsers[0].role === "admin"
-      ? history.push("/")
-      : history.push("/planjourney");
+      );
   };
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
+      {/* <button onClick={() => testing("yup")}>test</button> */}
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
           <LockOutlinedIcon />
@@ -87,7 +104,8 @@ export default function SignIn() {
           }}
           validationSchema={SignInSchema}
           onSubmit={(values) => {
-            handleLogin(values);
+            // console.log(values);
+            return handleLogin(values);
           }}
         >
           {({
@@ -139,7 +157,7 @@ export default function SignIn() {
                 variant="contained"
                 color="primary"
                 className={classes.submit}
-                disabled={!isValid}
+                // disabled={!isValid}
               >
                 Sign In
               </Button>

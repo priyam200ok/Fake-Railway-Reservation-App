@@ -51,7 +51,7 @@ export default function DashBoard() {
       url: `http://localhost:3000/scheduled/${id}`,
     });
   };
-  let id = loggedUsers ? loggedUsers[0].id : 1;
+  let id = loggedUsers ? loggedUsers.id : 1;
   useEffect(() => {
     axios
       .get(`http://localhost:3000/users/${id}/scheduled`)
@@ -77,8 +77,8 @@ export default function DashBoard() {
       .post("http://localhost:3000/stations", { name: station })
       .then((response) => response);
   };
-  return loggedUsers?.length >= 0 ? (
-    loggedUsers[0]?.role === "user" ? (
+  return loggedUsers ? (
+    loggedUsers?.role === "user" ? (
       <div className={classes.root}>
         <Grid item xs={12}>
           <Select isSearchable="true" options={dashData} />
@@ -155,6 +155,6 @@ export default function DashBoard() {
       </div>
     )
   ) : (
-    <div></div>
+    <div>Log in to view</div>
   );
 }

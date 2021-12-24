@@ -22,7 +22,7 @@ import {
 import SignIn from "./SignIn";
 import Dashboard from "./Dashboard";
 import { AuthContext } from "../Context/ContextStore";
-import { LOGGED_OUT } from "../Context/ContextReducer";
+import { LOGGED_OUT, LOGGED_USER } from "../Context/ContextReducer";
 import PlanJourney from "./PlanJourney";
 
 const drawerWidth = 240;
@@ -71,7 +71,7 @@ export default function Home() {
             {location.pathname.split("/")[1].toLocaleUpperCase()}
           </Typography>
           <Typography>
-            Welcome {loggedUsers?.length >= 0 ? loggedUsers[0].email : null}
+            Welcome {loggedUsers ? loggedUsers?.email : null}
           </Typography>
           <Box>
             <Button
@@ -79,6 +79,10 @@ export default function Home() {
               onClick={() => {
                 authDispatch({
                   type: LOGGED_OUT,
+                });
+                authDispatch({
+                  type: LOGGED_USER,
+                  loggedUsers: {},
                 });
                 history.push("/signin");
               }}
@@ -109,7 +113,7 @@ export default function Home() {
       </Drawer>
       <Switch>
         <Route path="/planjourney">
-          {loggedUsers[0]?.role === "admin" ? (
+          {loggedUsers && loggedUsers?.role === "admin" ? (
             <Redirect to="/dashboard">
               <Dashboard />
             </Redirect>
